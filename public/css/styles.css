@@ -1,0 +1,576 @@
+/* SakuKampus UMY - Hokkaido Soft Clean Blue & White Minimalist Design */
+/* Aesthetic: Japanese Clean Poster, Dominant Pure White, Soft Pastel Sky Blue, Vibrant Cobalt Accents */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* ─── Design Tokens ─── */
+:root {
+  --primary:        #2563EB; /* Hokkaido poster striking royal cobalt blue */
+  --primary-hover:  #1D4ED8;
+  --primary-light:  #F0F7FF; /* Ultra soft ice blue */
+  --primary-subtle: #E0F2FE; /* Sky mist */
+  --sky-vivid:      #38BDF8;
+  --sky-soft:       #BAE6FD;
+  --sky-ice:        #F0F7FF;
+  --konbini-orange: #FB923C; /* Warm accent from poster store roof */
+  --emerald:        #059669;
+  --emerald-hover:  #047857;
+  --emerald-light:  #ECFDF5;
+  
+  --slate-50:       #F8FAFC; /* Crisp snow white background */
+  --slate-100:      #F1F5F9;
+  --slate-200:      #E2EEF9; /* Subtle sky-tinted white border */
+  --slate-300:      #CBD5E1;
+  --slate-400:      #94A3B8;
+  --slate-500:      #64748B;
+  --slate-600:      #475569;
+  --slate-700:      #334155;
+  --slate-800:      #1E293B;
+  --slate-900:      #0F172A; /* Deep slate navy typography */
+  
+  --radius-card:    16px;
+  --radius-btn:     10px;
+  --shadow-sm:      0 1px 2px 0 rgba(37, 99, 235, 0.05);
+  --shadow-card:    0 1px 3px 0 rgba(37, 99, 235, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  --shadow-hover:   0 8px 20px -3px rgba(37, 99, 235, 0.08), 0 3px 6px -2px rgba(0, 0, 0, 0.03);
+  --transition:     180ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Modern Clean Slate Dark Mode */
+  --night-bg:       #0B132B;
+  --night-card:     #111C3A;
+  --night-card2:    #1C2B54;
+  --night-border:   #1E2E5D;
+  --night-text:     #F0F7FF;
+  --night-sub:      #93C5FD;
+  --night-accent:   #38BDF8;
+}
+
+/* ─── Base ─── */
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: -0.011em;
+  color: var(--slate-900);
+  background: var(--slate-50);
+}
+
+.dark body {
+  color: var(--night-text);
+  background: var(--night-bg);
+}
+
+/* ─── Typography & Fallbacks ─── */
+.font-pixel, .font-label {
+  font-family: 'Inter', sans-serif !important;
+  letter-spacing: normal !important;
+}
+
+h1, h2, h3, #topbarTitle {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+table, input, select, textarea, .tabular-nums {
+  font-family: 'Inter', sans-serif !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Modern Minimalist Cards (Dominant Pure White) ─── */
+.craft-card {
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  background-color: #FFFFFF;
+  transition: box-shadow var(--transition), border-color var(--transition);
+}
+
+.craft-card:hover {
+  box-shadow: var(--shadow-hover);
+  border-color: var(--sky-soft);
+}
+
+.dark .craft-card {
+  border-color: var(--night-border) !important;
+  background-color: var(--night-card) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* ─── Modern Soft Clean Buttons ─── */
+.btn-block {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  border-radius: var(--radius-btn);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-block-primary {
+  background: var(--primary);
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+}
+.btn-block-primary:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+.btn-block-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-block-outline {
+  background: #FFFFFF;
+  color: #1E40AF;
+  border: 1px solid var(--slate-200);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-btn);
+  transition: all var(--transition);
+}
+.dark .btn-block-outline {
+  background: var(--night-card);
+  border-color: var(--night-border);
+  color: var(--sky-soft);
+}
+.btn-block-outline:hover {
+  border-color: var(--sky-vivid);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+.dark .btn-block-outline:hover {
+  border-color: var(--night-accent);
+  color: var(--night-accent);
+  background: rgba(56, 189, 248, 0.12);
+}
+.btn-block-outline:active {
+  transform: scale(0.98);
+}
+
+.btn-block-danger {
+  background: #DC2626;
+  color: #FFFFFF;
+  box-shadow: var(--shadow-sm);
+}
+.btn-block-danger:hover {
+  background: #B91C1C;
+}
+.btn-block-danger:active {
+  transform: scale(0.98);
+}
+
+/* Primary buttons override */
+button.bg-brand-600,
+a.bg-brand-600,
+#btnDemoLogin,
+#btnChatSend,
+#floatingChatToggleBtn {
+  background-color: var(--primary) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25) !important;
+  border: none !important;
+  transition: all var(--transition) !important;
+}
+button.bg-brand-600:hover,
+a.bg-brand-600:hover,
+#btnDemoLogin:hover,
+#btnChatSend:hover,
+#floatingChatToggleBtn:hover {
+  background-color: var(--primary-hover) !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
+}
+button.bg-brand-600:active,
+a.bg-brand-600:active,
+#btnDemoLogin:active,
+#btnChatSend:active,
+#floatingChatToggleBtn:active {
+  transform: scale(0.97) !important;
+}
+
+/* ─── Navigation Item ─── */
+.nav-item {
+  transition: all var(--transition);
+  border-radius: 10px;
+}
+
+.nav-item.active,
+.nav-item[class*="bg-brand-50"] {
+  background-color: var(--primary-light) !important;
+  color: var(--primary) !important;
+  border: 1px solid var(--sky-soft);
+  font-weight: 600;
+}
+
+.dark .nav-item.active,
+.dark .nav-item[class*="bg-brand-50"] {
+  background-color: rgba(56, 189, 248, 0.12) !important;
+  color: var(--night-accent) !important;
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+/* ─── Soft Clean Quota Bar (Sky Gradient) ─── */
+.quota-bar-track {
+  width: 100%;
+  height: 6px;
+  background: var(--slate-200);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.dark .quota-bar-track {
+  background: var(--night-card2);
+}
+
+#sidebarQuotaBar {
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #38BDF8 0%, #2563EB 100%) !important;
+  transition: width 300ms ease;
+}
+
+/* ─── Chat Bubbles (Airy White & Soft Ice Blue) ─── */
+.chat-bubble-bot {
+  border-radius: 16px;
+  border-bottom-left-radius: 4px;
+}
+
+.chat-bubble-user {
+  border-radius: 16px;
+  border-bottom-right-radius: 4px;
+  background-color: var(--primary) !important;
+  color: #FFFFFF !important;
+}
+
+/* ─── Clean Suggestion Chips ─── */
+.craft-chip {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 500;
+  border: 1px solid var(--slate-200) !important;
+  border-radius: 9999px;
+  padding: 4px 12px;
+  background: #FFFFFF;
+  color: #1E3A8A;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition);
+  cursor: pointer;
+}
+.dark .craft-chip {
+  border-color: var(--night-border) !important;
+  background: var(--night-card2);
+  color: var(--night-text);
+}
+.craft-chip:hover {
+  border-color: var(--sky-vivid) !important;
+  color: var(--primary);
+  background: var(--primary-light);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.12);
+}
+.dark .craft-chip:hover {
+  border-color: var(--night-accent) !important;
+  color: var(--night-accent);
+  background: rgba(56, 189, 248, 0.14);
+}
+
+/* ─── Feature Label Chips (F-01 .. F-10) ─── */
+.feat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 7px;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 6px;
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid var(--sky-soft);
+}
+.dark .feat-chip {
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--night-accent);
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+.dark ::-webkit-scrollbar-thumb { background: #334155; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* ─── Microphone Active Pulse ─── */
+@keyframes mic-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6); }
+  70%  { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+.mic-active {
+  animation: mic-pulse 1.4s infinite;
+  background-color: #DC2626 !important;
+  color: #FFFFFF !important;
+}
+
+/* ─── Clean Animations ─── */
+.fade-in {
+  animation: fadeIn 160ms ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popUp {
+  from { opacity: 0; transform: scale(0.96) translateY(6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-popup {
+  animation: popUp 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes toastSlide {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.toast-item {
+  animation: toastSlide 180ms ease-out;
+}
+
+/* ─── Reduced Motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── Focus ─── */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* ─── Login Page Hokkaido Sky Gradient (Soft Pastel Sky Fading to Pure Snow White) ─── */
+.login-bg {
+  background: linear-gradient(180deg, #BAE6FD 0%, #E0F2FE 18%, #F0F7FF 42%, #FFFFFF 75%, #F8FAFC 100%);
+  min-height: 100vh;
+}
+.dark .login-bg {
+  background: linear-gradient(180deg, #070D1E 0%, #0B132B 50%, #111C3A 100%);
+}
+
+/* ─── SakuBot Avatar (Pastel Sky + Cobalt Gradient) ─── */
+.sakubot-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #38BDF8 0%, #2563EB 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 15px;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+/* ─── Segmented Pill Toggle ─── */
+.segment-pill {
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  background: #F1F5F9;
+  border: 1px solid var(--slate-200);
+  border-radius: 10px;
+}
+.dark .segment-pill {
+  background: var(--night-card2);
+  border-color: var(--night-border);
+}
+.segment-pill button {
+  padding: 4px 12px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all var(--transition);
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: var(--slate-500);
+}
+.dark .segment-pill button {
+  color: var(--slate-400);
+}
+.segment-pill button.active {
+  background: #FFFFFF;
+  color: var(--primary);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.1);
+}
+.dark .segment-pill button.active {
+  background: var(--night-card);
+  color: var(--night-accent);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* ─── Table Minimal Rows ─── */
+.zebra-table tbody tr {
+  transition: background-color var(--transition);
+}
+.zebra-table tbody tr:hover {
+  background-color: rgba(240, 247, 255, 0.7);
+}
+.dark .zebra-table tbody tr:hover {
+  background-color: rgba(28, 43, 84, 0.4);
+}
+
+/* ─── Party Card (Team Member) ─── */
+.party-card {
+  border: 1px solid var(--slate-200);
+  border-radius: 14px;
+  padding: 18px;
+  background: #FFFFFF;
+  transition: box-shadow var(--transition), border-color var(--transition);
+}
+.party-card:hover {
+  box-shadow: var(--shadow-hover);
+  border-color: var(--sky-soft);
+}
+.dark .party-card {
+  background: var(--night-card);
+  border-color: var(--night-border);
+}
+
+/* ─── Gate / Milestone Step ─── */
+.gate-step {
+  position: relative;
+  padding-left: 28px;
+  padding-bottom: 24px;
+  border-left: 2px solid var(--slate-200);
+}
+.dark .gate-step {
+  border-left-color: var(--night-border);
+}
+.gate-step::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--slate-200);
+}
+.gate-step.completed::before {
+  background: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+.gate-step.current::before {
+  background: var(--sky-vivid);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+}
+.dark .gate-step::before {
+  background: var(--night-border);
+}
+.dark .gate-step.completed::before {
+  background: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+.dark .gate-step.current::before {
+  background: var(--night-accent);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+}
+.gate-step:last-child {
+  border-left-color: transparent;
+}
+
+/* ─── Minimalist Badges ─── */
+.badge-sand {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid var(--slate-200);
+}
+.dark .badge-sand {
+  background: var(--night-card2);
+  color: var(--sky-soft);
+  border-color: var(--night-border);
+}
+
+.badge-dirt {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--primary-subtle);
+  color: #1D4ED8;
+  border: 1px solid var(--sky-soft);
+}
+.dark .badge-dirt {
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--night-accent);
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+/* ─── Uppercase Label ─── */
+.label-upper {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--slate-500);
+  font-weight: 600;
+}
+.dark .label-upper {
+  color: var(--sky-soft) !important;
+}
+
+/* ─── Clean Text Contrast Overrides ─── */
+.dark [class*="text-nighttext/30"],
+.dark [class*="text-nighttext/40"],
+.dark [class*="text-nighttext/50"],
+.dark [class*="text-nighttext/60"],
+.dark [class*="text-nighttext/70"],
+.dark [class*="text-ink/30"],
+.dark [class*="text-ink/40"],
+.dark [class*="text-ink/50"],
+.dark [class*="text-ink/60"],
+.dark [class*="text-ink/70"] {
+  color: #94A3B8 !important;
+}
+
+[class*="text-ink/30"],
+[class*="text-ink/40"],
+[class*="text-ink/50"] {
+  color: #64748B !important;
+}
+
+.dark [class*="border-[#3a3229]"],
+.dark [class*="border-sand-dark"] {
+  border-color: #1E2E5D !important;
+}
+
+.dark [class*="divide-[#3a3229]"] > :not([hidden]) ~ :not([hidden]),
+.dark [class*="divide-sand-dark"] > :not([hidden]) ~ :not([hidden]) {
+  border-color: #1E2E5D !important;
+}
+
+.pb-safe {
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+}

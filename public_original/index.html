@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SakuKampus UMY - Finance Tracker Chatbot</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f2f8f0',
+              100: '#e1f0dd',
+              200: '#c5e2bd',
+              300: '#a3d097',
+              400: '#81bd72',
+              500: '#6baf5d', // Minecraft Grass Green
+              600: '#5a9b4d',
+              700: '#487d3e',
+              800: '#3c6434',
+              900: '#33532c',
+              950: '#1b2d18'
+            },
+            craft: {
+              green: '#6baf5d',
+              wood: '#b57a4e',
+              darkwood: '#8c5832',
+              sand: '#f5e6d3',
+              sky: '#a7d8ff',
+              deepslate: '#1c1915'
+            }
+          },
+          fontFamily: {
+            pixel: ['Silkscreen', 'monospace'],
+            sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Chart.js CDN for F-07 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Fonts (Minecraftia Pixel + Clean Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-pixel { font-family: 'Silkscreen', cursive, monospace !important; }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-200 flex">
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed top-20 right-4 sm:right-8 z-50 flex flex-col gap-2.5 pointer-events-none max-w-sm w-full"></div>
+
+  <!-- Mobile Sidebar Backdrop Overlay -->
+  <div id="mobileSidebarBackdrop" onclick="closeMobileMenu()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+
+  <!-- SIDEBAR (DESKTOP & MOBILE DRAWER) -->
+  <aside id="mainSidebar" class="fixed inset-y-0 left-0 z-50 flex flex-col w-72 lg:w-64 h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 transform -translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none">
+    <!-- Brand & Mobile Close X Button -->
+    <div class="p-5 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('dashboard')">
+        <div class="w-10 h-10 rounded-xl bg-[#6baf5d] border-2 border-[#487d3e] shadow-[0_3px_0_#33532c] relative overflow-hidden flex items-center justify-center shrink-0">
+          <div class="absolute inset-x-0 bottom-0 h-1/2 bg-[#b57a4e] border-t-2 border-[#8c5832]"></div>
+          <div class="absolute top-[44%] left-1 w-2 h-1.5 bg-[#6baf5d]"></div>
+          <div class="absolute top-[44%] right-1.5 w-2 h-1.5 bg-[#6baf5d]"></div>
+          <i class="fa-solid fa-cube text-white text-base relative z-10 drop-shadow"></i>
+        </div>
+        <div class="truncate">
+          <div class="font-pixel font-bold text-base tracking-tight text-slate-900 dark:text-white leading-tight">
+            Saku<span class="text-[#6baf5d]">Kampus</span>
+          </div>
+          <div class="text-[10px] font-pixel text-[#b57a4e] tracking-wider uppercase">Team 7 · UMY</div>
+        </div>
+      </div>
+      <!-- Close Button X for mobile drawer -->
+      <button type="button" onclick="closeMobileMenu()" class="lg:hidden w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 hover:text-slate-900 dark:text-slate-300 flex items-center justify-center transition shadow-sm active:scale-95" title="Tutup Menu (X)">
+        <i class="fa-solid fa-xmark text-xl font-bold"></i>
+      </button>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+      <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-semibold transition bg-brand-50 dark:bg-brand-950/40 text-brand-700 dark:text-brand-400">
+        <i class="fa-solid fa-chart-pie text-base w-5 text-center text-[#6baf5d]"></i>
+        <span class="font-pixel text-xs">Dashboard</span>
+      </button>
+
+      <button onclick="switchView('chat')" id="nav-chat" class="nav-item w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-semibold transition text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800">
+        <i class="fa-solid fa-comments text-base w-5 text-center text-[#b57a4e]"></i>
+        <span class="font-pixel text-xs">Catat Chat & Suara</span>
+      </button>
+
+      <button onclick="switchView('history')" id="nav-history" class="nav-item w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-semibold transition text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800">
+        <i class="fa-solid fa-clock-rotate-left text-base w-5 text-center text-[#a7d8ff]"></i>
+        <span class="font-pixel text-xs">Riwayat Transaksi</span>
+      </button>
+
+      <button onclick="switchView('about')" id="nav-about" class="nav-item w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-semibold transition text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800">
+        <i class="fa-solid fa-folder-tree text-base w-5 text-center text-[#eab308]"></i>
+        <span class="font-pixel text-xs">Manajemen Proyek</span>
+      </button>
+    </nav>
+
+    <!-- Quota Card in Sidebar (F-09) -->
+    <div class="p-4 mx-4 mb-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
+      <div class="flex items-center justify-between text-xs mb-1.5">
+        <span class="text-slate-500 dark:text-slate-400 font-medium">Batas Pemakaian</span>
+        <span id="sidebarQuotaText" class="font-bold text-brand-600">50/50</span>
+      </div>
+      <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+        <div id="sidebarQuotaBar" class="bg-brand-600 h-1.5 rounded-full transition-all duration-300" style="width: 100%"></div>
+      </div>
+      <p class="text-[10px] text-slate-400 mt-1.5">Maks. 50 pesan harian (F-09)</p>
+    </div>
+
+    <!-- User Profile & Logout -->
+    <div class="p-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between bg-white dark:bg-slate-900 mt-auto">
+      <div class="flex items-center gap-3 overflow-hidden">
+        <img id="sidebarUserAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" alt="Avatar" class="w-9 h-9 rounded-full bg-brand-100 dark:bg-brand-900 border border-brand-200 shrink-0">
+        <div class="truncate">
+          <p id="sidebarUserName" class="text-xs font-bold text-slate-900 dark:text-white truncate">Memuat...</p>
+          <p id="sidebarUserEmail" class="text-[10px] text-slate-400 truncate">user@student.umy.ac.id</p>
+        </div>
+      </div>
+      <button onclick="handleLogout()" class="p-2 text-slate-400 hover:text-red-500 transition shrink-0" title="Keluar">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT AREA -->
+  <div class="flex-1 flex flex-col lg:pl-64 min-w-0">
+
+    <!-- Top Header Navbar -->
+    <header class="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-20">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Mobile menu toggle -->
+        <button onclick="openMobileMenu()" class="lg:hidden p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Buka Menu">
+          <i class="fa-solid fa-bars text-lg"></i>
+        </button>
+
+        <!-- Dynamic Back Button (Shown when not on dashboard) -->
+        <button id="btnBackToDashboard" onclick="switchView('dashboard')" class="hidden items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-brand-50 hover:text-brand-600 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-200 dark:border-slate-700 transition" title="Kembali ke Dashboard">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Kembali</span>
+        </button>
+
+        <div>
+          <h1 id="topbarTitle" class="text-lg font-bold text-slate-900 dark:text-white">Dashboard Keuangan</h1>
+          <p id="topbarSubtitle" class="text-xs text-slate-400 hidden sm:block">Ringkasan saldo & transaksi pintar</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Manual Add Button -->
+        <button onclick="openAddModal()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition" title="Tambah Transaksi Manual">
+          <i class="fa-solid fa-plus text-brand-600"></i>
+          <span class="hidden sm:inline">Tambah Manual</span>
+        </button>
+
+        <!-- Quick Chat Button -->
+        <button onclick="switchView('chat')" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-md shadow-brand-600/20 transition">
+          <i class="fa-solid fa-comment-dots"></i>
+          <span>Catat Chat</span>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button id="mainThemeBtn" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition" title="Toggle Tema">
+          <i class="fa-solid fa-moon dark:hidden"></i>
+          <i class="fa-solid fa-sun hidden dark:inline"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT CONTAINER -->
+    <main class="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto pb-24 lg:pb-8">
+
+      <!-- ========================================== -->
+      <!-- VIEW 1: DASHBOARD (F-06, F-07) -->
+      <!-- ========================================== -->
+      <section id="view-dashboard" class="space-y-6 fade-in">
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Total Saldo -->
+          <div class="craft-card p-6 rounded-3xl bg-white dark:bg-[#1a1714] shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-pixel text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Saldo</span>
+              <div class="w-9 h-9 rounded-xl bg-[#6baf5d]/20 text-[#487d3e] dark:text-[#6baf5d] flex items-center justify-center border border-[#6baf5d]/30">
+                <i class="fa-solid fa-cube text-base"></i>
+              </div>
+            </div>
+            <div id="statTotalBalance" class="text-2xl font-extrabold text-slate-900 dark:text-white">Rp 0</div>
+            <p class="text-xs text-slate-400 mt-1">Akumulasi saldo keseluruhan</p>
+          </div>
+
+          <!-- Pemasukan Bulan Ini -->
+          <div class="craft-card p-6 rounded-3xl bg-white dark:bg-[#1a1714] shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-pixel text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pemasukan Bulan Ini</span>
+              <div class="w-9 h-9 rounded-xl bg-[#a7d8ff]/25 text-[#1e6f9f] dark:text-[#a7d8ff] flex items-center justify-center border border-[#a7d8ff]/40">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+              </div>
+            </div>
+            <div id="statMonthlyIncome" class="text-2xl font-extrabold text-[#2563eb] dark:text-[#60a5fa]">Rp 0</div>
+            <p class="text-xs text-slate-400 mt-1">Gaji, uang saku & bonus</p>
+          </div>
+
+          <!-- Pengeluaran Bulan Ini -->
+          <div class="craft-card p-6 rounded-3xl bg-white dark:bg-[#1a1714] shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-pixel text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pengeluaran Bulan Ini</span>
+              <div class="w-9 h-9 rounded-xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center border border-rose-200 dark:border-rose-900">
+                <i class="fa-solid fa-arrow-trend-down"></i>
+              </div>
+            </div>
+            <div id="statMonthlyExpense" class="text-2xl font-extrabold text-rose-600 dark:text-rose-400">Rp 0</div>
+            <p class="text-xs text-slate-400 mt-1">Makan, bensin, tagihan, dll</p>
+          </div>
+
+          <!-- Kuota Pemakaian Hari Ini (F-09) -->
+          <div class="craft-card p-6 rounded-3xl bg-white dark:bg-[#1a1714] shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-pixel text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider">Batas Kuota Chat</span>
+              <div class="w-9 h-9 rounded-xl bg-[#b57a4e]/20 text-[#8c5832] dark:text-[#f5e6d3] flex items-center justify-center border border-[#b57a4e]/30">
+                <i class="fa-solid fa-shield-halved"></i>
+              </div>
+            </div>
+            <div id="statQuotaCount" class="text-2xl font-extrabold text-slate-900 dark:text-white">50 / 50</div>
+            <p class="text-xs text-slate-400 mt-1">Pesan tersisa hari ini (F-09)</p>
+          </div>
+        </div>
+
+        <!-- Charts Grid (F-07: Grafik Kategori dan Tren Bulanan) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Doughnut Chart: Distribusi Kategori Pengeluaran -->
+          <div class="craft-card p-6 rounded-3xl bg-white dark:bg-[#1a1714] shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="font-pixel text-sm font-bold text-slate-900 dark:text-white">Distribusi Pengeluaran</h3>
+                <p class="text-xs text-slate-400">Proporsi per kategori pengeluaran</p>
+              </div>
+              <span class="font-pixel text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">
+                F-07
+              </span>
+            </div>
+            <div class="h-64 flex items-center justify-center relative">
+              <canvas id="categoryChart"></canvas>
+              <div id="emptyCategoryChart" class="hidden text-center text-slate-400 text-sm">
+                <i class="fa-solid fa-receipt text-3xl mb-2 opacity-50"></i>
+                <p>Belum ada data pengeluaran</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Line Chart: Tren Keuangan (Harian & Bulanan) -->
+          <div class="craft-card p-6 rounded-3xl bg-white dark:bg-[#1a1714] shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+              <div>
+                <h3 class="font-pixel text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <span id="trendChartTitle">Tren Bulanan</span>
+                  <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">F-07</span>
+                </h3>
+                <p id="trendChartSubtitle" class="text-xs text-slate-400">Pemasukan vs Pengeluaran 6 bulan terakhir</p>
+              </div>
+
+              <!-- Period Toggle Switcher: 7 Hari | 30 Hari | Bulanan -->
+              <div class="flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-semibold self-start sm:self-auto border border-slate-200 dark:border-slate-700">
+                <button type="button" id="btnTrend7d" onclick="setTrendPeriod('7d')" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition">
+                  7 Hari
+                </button>
+                <button type="button" id="btnTrend30d" onclick="setTrendPeriod('30d')" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition">
+                  30 Hari
+                </button>
+                <button type="button" id="btnTrendMonthly" onclick="setTrendPeriod('monthly')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-400 shadow-sm transition">
+                  Bulanan
+                </button>
+              </div>
+            </div>
+            <div class="h-64 flex items-center justify-center relative">
+              <canvas id="trendChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transaksi Terbaru Section -->
+        <div class="craft-card p-6 rounded-3xl bg-white dark:bg-[#1a1714] shadow-sm">
+          <div class="flex items-center justify-between mb-5">
+            <div>
+              <h3 class="font-pixel text-sm font-bold text-slate-900 dark:text-white">Transaksi Terbaru</h3>
+              <p class="text-xs text-slate-400">5 aktivitas keuangan terakhir Anda</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="openAddModal()" class="text-xs font-semibold px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                <i class="fa-solid fa-plus text-brand-600 mr-1"></i> Tambah
+              </button>
+              <button onclick="switchView('history')" class="text-xs font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-400 flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-brand-50 dark:hover:bg-brand-950/40 transition">
+                Lihat Semua <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="recentTxList" class="divide-y divide-slate-100 dark:divide-slate-800">
+            <!-- Will be populated dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- VIEW 2: CATAT VIA CHAT & SUARA (F-02, F-03, F-04, F-09) -->
+      <!-- ========================================== -->
+      <section id="view-chat" class="hidden max-w-4xl mx-auto space-y-4 fade-in">
+        <!-- Return to Dashboard Banner -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200/70 dark:border-slate-800">
+          <button onclick="switchView('dashboard')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 shadow-sm transition">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Kembali ke Dashboard</span>
+          </button>
+          <span class="text-xs text-slate-400"><i class="fa-solid fa-robot text-brand-600 mr-1.5"></i>SakuBot Finance Assistant</span>
+        </div>
+
+        <!-- Chat Container Box -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xl overflow-hidden flex flex-col h-[72vh]">
+
+          <!-- Chat Header -->
+          <div class="p-4 sm:px-6 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-brand-600 text-white flex items-center justify-center shadow-md shadow-brand-600/30">
+                <i class="fa-solid fa-robot"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  SakuBot
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                </h3>
+                <p class="text-xs text-slate-400">Pencatat Keuangan Cerdas Mahasiswa</p>
+              </div>
+            </div>
+
+            <!-- Quota Tag & Back button -->
+            <div class="flex items-center gap-2">
+              <span id="chatQuotaTag" class="text-xs font-semibold px-3 py-1 rounded-full bg-brand-100 dark:bg-brand-950/60 text-brand-700 dark:text-brand-400">
+                Sisa: 50 Kuota
+              </span>
+              <button onclick="switchView('dashboard')" class="p-2 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition" title="Tutup Chat & Kembali ke Dashboard">
+                <i class="fa-solid fa-xmark text-lg"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Messages Stream -->
+          <div id="chatMessages" class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4">
+            <!-- Initial Welcome Bot Message -->
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs shrink-0 mt-1">
+                <i class="fa-solid fa-robot"></i>
+              </div>
+              <div class="max-w-[85%] bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 p-4 rounded-2xl chat-bubble-bot text-sm leading-relaxed">
+                Halo! Saya <b>SakuBot</b> 🤖.<br>
+                Ketik atau ucapkan pengeluaran/pemasukan Anda langsung, tanpa perlu mengisi formulir panjang!
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Suggestions Chips (Catat & Tanya Finansial) -->
+          <div class="px-4 sm:px-6 py-2.5 bg-slate-50/70 dark:bg-slate-800/40 border-t border-slate-100 dark:border-slate-800/60 flex items-center gap-2 overflow-x-auto text-xs whitespace-nowrap">
+            <span class="text-slate-400 shrink-0 font-bold"><i class="fa-solid fa-wand-magic-sparkles text-brand-500 mr-1"></i>Tanya SakuBot:</span>
+            <button onclick="setChatInput('sisa uang saku berapa')" class="px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 hover:border-brand-500 transition text-emerald-700 dark:text-emerald-400 font-medium">
+              💰 sisa uang saku
+            </button>
+            <button onclick="setChatInput('pengeluaran terbesar')" class="px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 hover:border-brand-500 transition text-rose-700 dark:text-rose-400 font-medium">
+              📊 pengeluaran terbesar
+            </button>
+            <button onclick="setChatInput('tips hemat')" class="px-3 py-1 rounded-full bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 hover:border-brand-500 transition text-teal-700 dark:text-teal-400 font-medium">
+              💡 tips hemat
+            </button>
+            <button onclick="setChatInput('budgeting')" class="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 hover:border-brand-500 transition text-indigo-700 dark:text-indigo-400 font-medium">
+              📐 budgeting 50/30/20
+            </button>
+            <button onclick="setChatInput('cek adakah tagihan terbaru?')" class="px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 hover:border-brand-500 transition text-blue-700 dark:text-blue-400 font-medium">
+              📄 cek tagihan
+            </button>
+            <button onclick="setChatInput('utang?')" class="px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 hover:border-brand-500 transition text-purple-700 dark:text-purple-400 font-medium">
+              ⚠️ utang?
+            </button>
+            <button onclick="setChatInput('jadwal bayar apa saja')" class="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 hover:border-brand-500 transition text-amber-700 dark:text-amber-400 font-medium">
+              🗓️ jadwal bayar
+            </button>
+            <span class="text-slate-300 dark:text-slate-700">|</span>
+            <span class="text-slate-400 shrink-0 font-medium">Catat:</span>
+            <button onclick="setChatInput('makan siang 15rb')" class="px-3 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-brand-500 transition text-slate-600 dark:text-slate-300">
+              makan siang 15rb
+            </button>
+            <button onclick="setChatInput('kemarin beli bensin 25.000')" class="px-3 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-brand-500 transition text-slate-600 dark:text-slate-300">
+              kemarin beli bensin 25.000
+            </button>
+            <button onclick="setChatInput('gajian 3 juta')" class="px-3 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-brand-500 transition text-slate-600 dark:text-slate-300">
+              gajian 3 juta
+            </button>
+          </div>
+
+          <!-- Chat Input Form with Voice Button (F-02) -->
+          <form id="chatForm" onsubmit="handleSendChat(event)" class="p-4 sm:px-6 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2">
+            <!-- Voice Recognition Button (Web Speech API F-02) -->
+            <button type="button" id="btnVoiceRecord" onclick="toggleVoiceRecording()" class="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition relative" title="Ucapkan transaksi (Suara Bahasa Indonesia)">
+              <i id="micIcon" class="fa-solid fa-microphone text-base"></i>
+            </button>
+
+            <!-- Text Input -->
+            <input type="text" id="chatInputText" placeholder="Ketik transaksi, misal: 'makan siang 15rb' atau 'beli bensin 25k'..." class="flex-1 px-4 py-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border-0 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-brand-500 outline-none">
+
+            <!-- Send Button -->
+            <button type="submit" id="btnChatSend" class="p-3.5 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white transition shadow-md shadow-brand-600/30 flex items-center justify-center">
+              <i class="fa-solid fa-paper-plane text-base"></i>
+            </button>
+          </form>
+
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- VIEW 3: RIWAYAT TRANSAKSI (F-05, F-10) -->
+      <!-- ========================================== -->
+      <section id="view-history" class="hidden space-y-6 fade-in">
+        <!-- Return to Dashboard Banner -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200/70 dark:border-slate-800">
+          <button onclick="switchView('dashboard')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 shadow-sm transition">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Kembali ke Dashboard</span>
+          </button>
+          <div class="flex items-center gap-2">
+            <button onclick="openAddModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold transition">
+              <i class="fa-solid fa-plus text-brand-600"></i> Tambah Manual
+            </button>
+            <button onclick="switchView('chat')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-md shadow-brand-600/20 transition">
+              <i class="fa-solid fa-comment-dots"></i> Tambah via Chat
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 class="font-bold text-slate-900 dark:text-white">Filter & Pencarian Riwayat</h3>
+              <p class="text-xs text-slate-400">Temukan transaksi berdasarkan tanggal, kategori, atau deskripsi</p>
+            </div>
+            <button onclick="resetFilters()" class="text-xs font-semibold text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-rotate-left"></i> Reset Filter
+            </button>
+          </div>
+
+          <!-- Search & Filter inputs -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
+            <!-- Search -->
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
+              <input type="text" id="filterSearch" oninput="applyFilters()" placeholder="Cari deskripsi / kalimat..." class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs border-0 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+            </div>
+
+            <!-- Type Filter -->
+            <select id="filterType" onchange="applyFilters()" class="px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs border-0 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+              <option value="">Semua Tipe Transaksi</option>
+              <option value="expense">Pengeluaran Saja</option>
+              <option value="income">Pemasukan Saja</option>
+            </select>
+
+            <!-- Category Filter -->
+            <select id="filterCategory" onchange="applyFilters()" class="px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs border-0 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+              <option value="">Semua 12 Kategori</option>
+              <!-- Populated dynamically -->
+            </select>
+
+            <!-- Date Range Filter -->
+            <div class="flex items-center gap-1.5">
+              <input type="date" id="filterStartDate" onchange="applyFilters()" class="w-1/2 px-2.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] border-0 text-slate-900 dark:text-white outline-none" title="Tanggal Mulai">
+              <span class="text-xs text-slate-400">-</span>
+              <input type="date" id="filterEndDate" onchange="applyFilters()" class="w-1/2 px-2.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] border-0 text-slate-900 dark:text-white outline-none" title="Tanggal Akhir">
+            </div>
+          </div>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 dark:bg-slate-800/60 text-slate-400 text-[11px] uppercase tracking-wider font-semibold border-b border-slate-100 dark:border-slate-800">
+                  <th class="py-4 px-6">Tanggal</th>
+                  <th class="py-4 px-6">Keterangan & Kalimat Asli</th>
+                  <th class="py-4 px-6">Kategori</th>
+                  <th class="py-4 px-6 text-center">Sumber & Parser</th>
+                  <th class="py-4 px-6 text-right">Nominal</th>
+                  <th class="py-4 px-6 text-center">Aksi (F-10)</th>
+                </tr>
+              </thead>
+              <tbody id="transactionTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+          <div id="emptyTxPlaceholder" class="hidden p-12 text-center text-slate-400">
+            <i class="fa-solid fa-receipt text-4xl mb-3 opacity-40"></i>
+            <p class="font-medium">Tidak ada transaksi yang cocok dengan filter.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- VIEW 4: TENTANG & MANAJEMEN PROYEK (TEAM 7) -->
+      <!-- ========================================== -->
+      <section id="view-about" class="hidden space-y-6 fade-in">
+        <!-- Return to Dashboard Banner -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200/70 dark:border-slate-800">
+          <button onclick="switchView('dashboard')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 shadow-sm transition">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Kembali ke Dashboard</span>
+          </button>
+          <span class="text-xs text-slate-400">Dokumentasi Proyek Team 7</span>
+        </div>
+
+        <!-- Team Presentation Header -->
+        <div class="p-8 rounded-3xl bg-gradient-to-r from-brand-700 to-emerald-600 text-white shadow-xl shadow-brand-700/20">
+          <span class="px-3 py-1 rounded-full bg-white/20 text-xs font-bold tracking-wider uppercase">Manajemen Proyek TI · Metode Waterfall</span>
+          <h2 class="text-3xl font-extrabold mt-3">SAKU KAMPUS UMY</h2>
+          <p class="text-emerald-100 text-sm mt-2 max-w-2xl">
+            Aplikasi pencatat keuangan berbasis chatbot tanpa formulir panjang, dengan arsitektur Waterfall 11 pertemuan kerja, 4 gate persetujuan, dan 10 fitur in-scope.
+          </p>
+        </div>
+
+        <!-- 7 Team Members -->
+        <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <h3 class="font-bold text-slate-900 dark:text-white mb-1">Kelompok Team 7</h3>
+          <p class="text-xs text-slate-400 mb-6">7 Anggota dengan 4 Peran Spesifik</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800">
+              <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center text-sm mb-3">FA</div>
+              <h4 class="font-bold text-sm text-slate-900 dark:text-white">Faid Arya Pamungkas</h4>
+              <p class="text-xs text-slate-400">NIM: 20240140108</p>
+              <span class="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 font-semibold text-[11px]">Project Manager</span>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800">
+              <div class="w-10 h-10 rounded-xl bg-blue-600 text-white font-bold flex items-center justify-center text-sm mb-3">AT</div>
+              <h4 class="font-bold text-sm text-slate-900 dark:text-white">Argy Tata Maulana</h4>
+              <p class="text-xs text-slate-400">NIM: 20240140128</p>
+              <span class="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 font-semibold text-[11px]">Backend Developer</span>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800">
+              <div class="w-10 h-10 rounded-xl bg-blue-600 text-white font-bold flex items-center justify-center text-sm mb-3">MF</div>
+              <h4 class="font-bold text-sm text-slate-900 dark:text-white">Muhammad Fawwaz Naufal D.</h4>
+              <p class="text-xs text-slate-400">NIM: 20240140122</p>
+              <span class="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 font-semibold text-[11px]">Backend Developer</span>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800">
+              <div class="w-10 h-10 rounded-xl bg-purple-600 text-white font-bold flex items-center justify-center text-sm mb-3">IH</div>
+              <h4 class="font-bold text-sm text-slate-900 dark:text-white">Isna Habibah Ramadhani</h4>
+              <p class="text-xs text-slate-400">NIM: 20240140054</p>
+              <span class="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-400 font-semibold text-[11px]">Frontend Developer</span>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800">
+              <div class="w-10 h-10 rounded-xl bg-purple-600 text-white font-bold flex items-center justify-center text-sm mb-3">KS</div>
+              <h4 class="font-bold text-sm text-slate-900 dark:text-white">Keisha Shendy Fadhillah A.</h4>
+              <p class="text-xs text-slate-400">NIM: 20240140281</p>
+              <span class="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-400 font-semibold text-[11px]">Frontend Developer</span>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800">
+              <div class="w-10 h-10 rounded-xl bg-amber-600 text-white font-bold flex items-center justify-center text-sm mb-3">CN</div>
+              <h4 class="font-bold text-sm text-slate-900 dark:text-white">Chintya Nuryaman</h4>
+              <p class="text-xs text-slate-400">NIM: 20240140195</p>
+              <span class="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 font-semibold text-[11px]">QC / Testing</span>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800">
+              <div class="w-10 h-10 rounded-xl bg-amber-600 text-white font-bold flex items-center justify-center text-sm mb-3">RR</div>
+              <h4 class="font-bold text-sm text-slate-900 dark:text-white">Randi Rozikin</h4>
+              <p class="text-xs text-slate-400">NIM: 20240140140</p>
+              <span class="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 font-semibold text-[11px]">QC / Testing</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Gates Table & Waterfall Schedule -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- 4 Gates -->
+          <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+            <h3 class="font-bold text-slate-900 dark:text-white">4 Gate Persetujuan Waterfall</h3>
+            <div class="space-y-3 text-xs">
+              <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800">
+                <div class="flex justify-between font-bold text-slate-900 dark:text-white">
+                  <span>Gate 1: Requirements (Pertemuan 6)</span>
+                  <span class="text-emerald-600">Disetujui</span>
+                </div>
+                <p class="text-slate-500 dark:text-slate-400 mt-1">SRS final disetujui, scope statement dan WBS selesai, risk register dan rencana biaya ada.</p>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800">
+                <div class="flex justify-between font-bold text-slate-900 dark:text-white">
+                  <span>Gate 2: Desain (Pertemuan 9)</span>
+                  <span class="text-emerald-600">Disetujui</span>
+                </div>
+                <p class="text-slate-500 dark:text-slate-400 mt-1">Semua diagram UML, ERD 4 tabel, alur OAuth, alur chatbot, dan tech stack diputuskan.</p>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800">
+                <div class="flex justify-between font-bold text-slate-900 dark:text-white">
+                  <span>Gate 3: Kode Lengkap (Pertemuan 12)</span>
+                  <span class="text-brand-600 font-bold">Tahap Ini</span>
+                </div>
+                <p class="text-slate-500 dark:text-slate-400 mt-1">Semua fitur in-scope ada, satu alur dari login sampai dashboard dan chatbot berjalan.</p>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800">
+                <div class="flex justify-between font-bold text-slate-900 dark:text-white">
+                  <span>Gate 4: Rilis (Pertemuan 14)</span>
+                  <span class="text-slate-400">Tahap Akhir</span>
+                </div>
+                <p class="text-slate-500 dark:text-slate-400 mt-1">Hasil testing bagus, bug prioritas selesai, aplikasi live di hosting, dokumentasi lengkap.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 10 In-Scope Features (F-01 to F-10) -->
+          <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+            <h3 class="font-bold text-slate-900 dark:text-white">Scope Management (10 Fitur In-Scope)</h3>
+            <ul class="space-y-2 text-xs">
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-500"></i><b>F-01</b>: Login dan logout Google OAuth 2.0</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-500"></i><b>F-02</b>: Catat transaksi lewat chat dan suara (Web Speech API)</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-500"></i><b>F-03</b>: Kategori transaksi otomatis (12 Kategori, Aturan + AI)</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-500"></i><b>F-04</b>: Tangani kalimat tidak dikenali (Break tanpa simpan)</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-500"></i><b>F-05</b>: Riwayat transaksi lengkap dan terurut</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-500"></i><b>F-06</b>: Dashboard saldo, ringkasan dan statistik</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-500"></i><b>F-07</b>: Grafik kategori & tren bulanan (Chart.js)</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-500"></i><b>F-08</b>: Keamanan data antar pengguna (Isolasi user_id)</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-500"></i><b>F-09</b>: Pembatasan pemakaian harian (Tabel chat_usage)</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-500"></i><b>F-10</b>: Ubah dan hapus transaksi (Aksi kontrol)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- FLOATING CHAT ASSISTANT (FAB & FLOATING WINDOW ON DASHBOARD) -->
+  <div id="floatingChatContainer" class="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-40 flex flex-col items-end">
+    <!-- Floating Chat Window (Toggled open/close) -->
+    <div id="floatingChatWindow" class="hidden w-[350px] sm:w-[390px] h-[520px] max-h-[80vh] bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden mb-3 animate-popup">
+      <!-- Floating Header with X Close Button -->
+      <div class="p-4 bg-brand-600 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div>
+            <h4 class="font-bold text-sm leading-tight">SakuBot Asisten</h4>
+            <p class="text-[10px] text-emerald-100">Catat transaksi instan</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-1">
+          <button onclick="switchView('chat'); toggleFloatingChat();" class="p-1.5 hover:bg-white/20 rounded-lg text-xs" title="Buka Layar Penuh">
+            <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+          </button>
+          <!-- Button X to close floating chat -->
+          <button id="btnFloatingChatClose" onclick="toggleFloatingChat()" class="p-1.5 hover:bg-white/20 rounded-lg text-sm" title="Tutup Chat (X)">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Floating Chat Messages Stream -->
+      <div id="floatingChatMessages" class="flex-1 p-3.5 overflow-y-auto space-y-3 text-xs">
+        <div class="flex items-start gap-2">
+          <div class="w-6 h-6 rounded-full bg-brand-600 text-white flex items-center justify-center text-[10px] shrink-0 mt-0.5">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="max-w-[85%] bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 p-3 rounded-2xl chat-bubble-bot leading-relaxed">
+            Halo! Ketik atau ucapkan transaksi Anda (misal: <i>makan siang 15rb</i>).
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Chips in Floating Window -->
+      <div class="px-3 py-1.5 bg-slate-50/70 dark:bg-slate-800/40 border-t border-slate-100 dark:border-slate-800 flex items-center gap-1.5 overflow-x-auto text-[11px] whitespace-nowrap">
+        <button onclick="setFloatingChatInput('sisa uang saku berapa')" class="px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 font-medium">
+          💰 sisa saku
+        </button>
+        <button onclick="setFloatingChatInput('pengeluaran terbesar')" class="px-2.5 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400 font-medium">
+          📊 boros apa
+        </button>
+        <button onclick="setFloatingChatInput('tips hemat')" class="px-2.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 font-medium">
+          💡 tips hemat
+        </button>
+        <button onclick="setFloatingChatInput('cek adakah tagihan terbaru?')" class="px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400 font-medium">
+          📄 tagihan
+        </button>
+        <button onclick="setFloatingChatInput('utang?')" class="px-2.5 py-0.5 rounded-full bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-400 font-medium">
+          ⚠️ utang?
+        </button>
+        <button onclick="setFloatingChatInput('jadwal bayar apa saja')" class="px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 font-medium">
+          🗓️ jadwal bayar
+        </button>
+        <button onclick="setFloatingChatInput('makan siang 15rb')" class="px-2.5 py-0.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
+          makan 15rb
+        </button>
+      </div>
+
+      <!-- Floating Chat Input Form -->
+      <form id="floatingChatForm" onsubmit="handleSendFloatingChat(event)" class="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center gap-1.5">
+        <button type="button" id="btnFloatingVoiceRecord" onclick="toggleFloatingVoiceRecording()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition" title="Ucapkan suara (id-ID)">
+          <i id="floatingMicIcon" class="fa-solid fa-microphone text-xs"></i>
+        </button>
+        <input type="text" id="floatingChatInputText" placeholder="Ketik transaksi..." class="flex-1 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border-0 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-brand-500 outline-none">
+        <button type="submit" class="p-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white transition shadow-sm">
+          <i class="fa-solid fa-paper-plane text-xs"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- Floating Action Button (FAB) -->
+    <button id="floatingChatToggleBtn" onclick="toggleFloatingChat()" class="w-14 h-14 rounded-full bg-brand-600 hover:bg-brand-700 text-white shadow-xl shadow-brand-600/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95 text-xl" title="Buka SakuBot Asisten">
+      <i id="floatingChatIcon" class="fa-solid fa-comments"></i>
+    </button>
+  </div>
+
+  <!-- MOBILE BOTTOM NAVIGATION -->
+  <div class="lg:hidden fixed bottom-0 inset-x-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-6 py-2 flex justify-around items-center z-30">
+    <button onclick="switchView('dashboard')" id="mobile-nav-dashboard" class="flex flex-col items-center gap-1 text-brand-600 text-xs">
+      <i class="fa-solid fa-chart-pie text-lg"></i>
+      <span>Dashboard</span>
+    </button>
+    <button onclick="switchView('chat')" id="mobile-nav-chat" class="flex flex-col items-center gap-1 text-slate-500 text-xs">
+      <div class="w-10 h-10 rounded-full bg-brand-600 text-white flex items-center justify-center -mt-5 shadow-lg shadow-brand-600/40">
+        <i class="fa-solid fa-comment-dots text-base"></i>
+      </div>
+      <span>Catat</span>
+    </button>
+    <button onclick="switchView('history')" id="mobile-nav-history" class="flex flex-col items-center gap-1 text-slate-500 hover:text-brand-600 text-xs">
+      <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+      <span>Riwayat</span>
+    </button>
+    <button onclick="switchView('about')" id="mobile-nav-about" class="flex flex-col items-center gap-1 text-slate-500 hover:text-brand-600 text-xs">
+      <i class="fa-solid fa-folder-tree text-lg"></i>
+      <span>Proyek</span>
+    </button>
+  </div>
+
+  <!-- MANUAL ADD TRANSACTION MODAL -->
+  <div id="addModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="craft-card bg-white dark:bg-[#1a1714] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4 animate-popup">
+      <!-- Modal Header with working X button -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-[#6baf5d]/20 text-[#487d3e] dark:text-[#6baf5d] flex items-center justify-center text-sm border border-[#6baf5d]/30">
+            <i class="fa-solid fa-plus"></i>
+          </div>
+          <h3 class="font-pixel text-sm font-bold text-slate-900 dark:text-white">Tambah Transaksi</h3>
+        </div>
+        <button type="button" onclick="closeAddModal()" class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Tutup (X)">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="addForm" onsubmit="handleSaveAdd(event)" class="space-y-4">
+        <!-- Type Selection -->
+        <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <button type="button" id="btnAddTypeExpense" onclick="setAddType('expense')" class="py-2 rounded-xl text-xs font-bold transition bg-white dark:bg-slate-700 text-rose-600 shadow-sm font-pixel">
+            Pengeluaran
+          </button>
+          <button type="button" id="btnAddTypeIncome" onclick="setAddType('income')" class="py-2 rounded-xl text-xs font-bold transition text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 font-pixel">
+            Pemasukan
+          </button>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Nominal (Rupiah)</label>
+          <input type="number" id="addAmount" required min="100" placeholder="Contoh: 25000" class="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-0 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Kategori</label>
+          <select id="addCategory" required class="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-0 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+            <!-- Populated dynamically based on type -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Keterangan</label>
+          <input type="text" id="addDesc" required placeholder="Contoh: Makan siang ayam geprek" class="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-0 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Tanggal Transaksi</label>
+          <input type="date" id="addDate" required class="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-0 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="closeAddModal()" class="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition">Batal</button>
+          <button type="submit" class="flex-1 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-md shadow-brand-600/20 transition font-pixel">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT TRANSACTION MODAL (F-10) -->
+  <div id="editModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="craft-card bg-white dark:bg-[#1a1714] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4 animate-popup">
+      <!-- Header with X Button -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-600 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+          <h3 class="font-pixel text-sm font-bold text-slate-900 dark:text-white">Ubah Transaksi</h3>
+        </div>
+        <button type="button" onclick="closeEditModal()" class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Tutup (X)">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="editForm" onsubmit="handleSaveEdit(event)" class="space-y-4">
+        <input type="hidden" id="editTxId">
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Nominal (Rupiah)</label>
+          <input type="number" id="editAmount" required min="100" class="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-0 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Kategori</label>
+          <select id="editCategory" required class="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-0 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Keterangan</label>
+          <input type="text" id="editDesc" required class="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-0 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Tanggal Transaksi</label>
+          <input type="date" id="editDate" required class="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-0 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="closeEditModal()" class="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition">Batal</button>
+          <button type="submit" class="flex-1 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-md shadow-brand-600/20 transition font-pixel">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRMATION MODAL (F-10) -->
+  <div id="deleteModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="craft-card bg-white dark:bg-[#1a1714] rounded-3xl p-6 max-w-sm w-full text-center space-y-4 animate-popup">
+      <div class="w-14 h-14 rounded-2xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center text-2xl mx-auto">
+        <i class="fa-solid fa-trash-can"></i>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-900 dark:text-white text-lg">Hapus Transaksi?</h3>
+        <p class="text-xs text-slate-400 mt-1">Data transaksi ini akan dihapus secara permanen dari sistem.</p>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button type="button" onclick="closeDeleteModal()" class="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition">Batal</button>
+        <button type="button" id="btnConfirmDelete" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow-md shadow-rose-600/20 transition">Ya, Hapus</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client JavaScript Modules -->
+  <script src="/js/api.js"></script>
+  <script src="/js/voice.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/transactions.js"></script>
+  <script src="/js/chat.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

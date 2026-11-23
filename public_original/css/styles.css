@@ -1,0 +1,271 @@
+/* SakuKampus UMY - Minecraft Block Aesthetic Theme (Team 7) */
+@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --craft-green: #6baf5d;
+  --craft-green-hover: #79bf69;
+  --craft-green-shadow: #3f6834;
+  --craft-wood: #b57a4e;
+  --craft-wood-hover: #c4895c;
+  --craft-wood-shadow: #734827;
+  --craft-sand: #f5e6d3;
+  --craft-sky: #a7d8ff;
+  --craft-border-light: #e8ded2;
+  --craft-border-dark: #3a3229;
+}
+
+/* Base Font Settings */
+body {
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* Pixel Headings & Branding (Minecraftia style) */
+.font-pixel,
+.pixel-font,
+h1, h2, h3,
+#topbarTitle,
+.card-pixel-heading,
+.sidebar-brand-title {
+  font-family: 'Silkscreen', cursive, monospace !important;
+  letter-spacing: 0.5px;
+}
+
+/* Body font for tables, numbers, forms (keeps data crisp and legible) */
+.font-body,
+table,
+input,
+select,
+textarea {
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif !important;
+}
+
+/* Minecraft 3D Block Buttons (Tactile Minecraft Bevel) */
+.btn-craft-primary,
+button.bg-brand-600,
+a.bg-brand-600,
+#btnDemoLogin,
+#btnChatSend,
+#floatingChatToggleBtn {
+  background-color: var(--craft-green) !important;
+  border-bottom: 3px solid var(--craft-green-shadow) !important;
+  box-shadow: 0 4px 10px rgba(107, 175, 93, 0.25) !important;
+  transition: all 0.12s ease !important;
+}
+
+.btn-craft-primary:hover,
+button.bg-brand-600:hover,
+a.bg-brand-600:hover,
+#btnDemoLogin:hover,
+#btnChatSend:hover,
+#floatingChatToggleBtn:hover {
+  background-color: var(--craft-green-hover) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 14px rgba(107, 175, 93, 0.3) !important;
+}
+
+.btn-craft-primary:active,
+button.bg-brand-600:active,
+a.bg-brand-600:active,
+#btnDemoLogin:active,
+#btnChatSend:active,
+#floatingChatToggleBtn:active {
+  transform: translateY(2px) !important;
+  border-bottom-width: 1px !important;
+  box-shadow: 0 1px 3px rgba(107, 175, 93, 0.3) !important;
+}
+
+/* Minecraft Wood Buttons */
+.btn-craft-wood {
+  background-color: var(--craft-wood) !important;
+  color: white !important;
+  border-bottom: 3px solid var(--craft-wood-shadow) !important;
+  box-shadow: 0 4px 10px rgba(181, 122, 78, 0.25) !important;
+  transition: all 0.12s ease !important;
+}
+
+.btn-craft-wood:hover {
+  background-color: var(--craft-wood-hover) !important;
+  transform: translateY(-1px) !important;
+}
+
+.btn-craft-wood:active {
+  transform: translateY(2px) !important;
+  border-bottom-width: 1px !important;
+}
+
+/* Secondary Button Style (Minecraft Stone / Cloud) */
+.btn-craft-secondary {
+  border: 2px solid var(--craft-border-light);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.12s ease;
+}
+
+.dark .btn-craft-secondary {
+  border: 2px solid var(--craft-border-dark);
+}
+
+.btn-craft-secondary:hover {
+  border-color: var(--craft-green);
+  color: var(--craft-green);
+}
+
+/* Minecraft Card Block Outlines */
+.craft-card {
+  border: 2px solid var(--craft-border-light) !important;
+  box-shadow: 0 8px 20px -4px rgba(107, 175, 93, 0.08), 0 2px 6px rgba(0, 0, 0, 0.03) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.craft-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -4px rgba(107, 175, 93, 0.14) !important;
+}
+
+.dark .craft-card {
+  border: 2px solid var(--craft-border-dark) !important;
+  background-color: #1a1714 !important;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Minecraft Hotbar / Inventory Chips */
+.craft-chip {
+  font-family: 'Silkscreen', cursive, monospace !important;
+  font-size: 11px !important;
+  border: 2px solid var(--craft-border-light) !important;
+  box-shadow: 0 2px 0 rgba(181, 122, 78, 0.2);
+  transition: all 0.12s ease;
+}
+
+.dark .craft-chip {
+  border: 2px solid var(--craft-border-dark) !important;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
+}
+
+.craft-chip:hover {
+  border-color: var(--craft-green) !important;
+  transform: translateY(-1px);
+}
+
+.craft-chip:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* Navigation Item Minecraft Style */
+.nav-item {
+  transition: all 0.15s ease;
+}
+
+.nav-item.active,
+.nav-item[class*="bg-brand-50"] {
+  border-left: 4px solid var(--craft-green) !important;
+  background-color: #f2f8f0 !important;
+}
+
+.dark .nav-item.active,
+.dark .nav-item[class*="bg-brand-50"] {
+  border-left: 4px solid var(--craft-green) !important;
+  background-color: rgba(107, 175, 93, 0.12) !important;
+}
+
+/* Custom Minecraft-styled Scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(181, 122, 78, 0.08);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--craft-wood);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--craft-wood-hover);
+}
+
+/* Microphone Pulsing Animation for Voice Recording */
+@keyframes mic-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 14px rgba(239, 68, 68, 0);
+    transform: scale(1.08);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    transform: scale(1);
+  }
+}
+
+.mic-active {
+  animation: mic-pulse 1.5s infinite;
+  background-color: #ef4444 !important;
+  color: white !important;
+}
+
+/* Glassmorphism helpers */
+.glass {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.dark .glass {
+  background: rgba(26, 23, 20, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Chat bubble styling with soft Minecraft block corners */
+.chat-bubble-bot {
+  border-bottom-left-radius: 4px;
+}
+.chat-bubble-user {
+  border-bottom-right-radius: 4px;
+}
+
+/* Fade in animation */
+.fade-in {
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Floating Chat Animations */
+@keyframes popUp {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-popup {
+  animation: popUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Toast Notification Animation */
+@keyframes toastSlide {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.toast-item {
+  animation: toastSlide 0.25s ease-out;
+}
